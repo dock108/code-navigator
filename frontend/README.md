@@ -51,3 +51,14 @@ frontend/
 ## Styling
 
 TailwindCSS is used for all styling. You can add utility classes directly to your React components.
+
+## Backend Integration
+
+The landing page fetches repository metadata from the FastAPI backend at:
+
+```
+GET http://localhost:8000/repo/{owner}/{repo}/metadata
+```
+
+- The data is displayed on the landing page with loading and error states handled gracefully.
+- You can change the owner/repo in `src/pages/Home.jsx` as needed.
