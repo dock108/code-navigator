@@ -9,4 +9,5 @@
 - New endpoint /repo/{owner}/{repo}/files returns nested JSON of repository file structure.
 - GitHub token authentication via GITHUB_TOKEN environment variable.
 - Error handling for repository not found and authentication issues.
-- Added endpoint /repo/{owner}/{repo}/file-content to fetch and return raw file content from GitHub repositories. 
+- Added endpoint /repo/{owner}/{repo}/file-content to fetch and return raw file content from GitHub repositories.
+- Added endpoint /repo/{owner}/{repo}/metadata to return basic repository metadata (name, owner, description, language, stars, forks, open issues, url). 

@@ -117,4 +117,27 @@ This project uses the [PyGithub](https://pygithub.readthedocs.io/) library to in
   @app.get("/")
   def read_root():
       return {"message": "Hello, World!"}
+  ```
+
+### Get Repository Metadata
+
+- **Endpoint:** `/repo/{owner}/{repo}/metadata`
+- **Method:** GET
+- **Description:** Returns basic metadata about a GitHub repository.
+- **Example:**
+  ```bash
+  curl http://localhost:8000/repo/dock108/code-navigator/metadata
+  ```
+- **Response Example:**
+  ```json
+  {
+    "repo_name": "code-navigator",
+    "owner": "dock108",
+    "description": "Read-only app for easy navigation of large GitHub repos.",
+    "language": "Python",
+    "stars": 4,
+    "forks": 0,
+    "open_issues": 2,
+    "url": "https://github.com/dock108/code-navigator"
+  }
   ``` 

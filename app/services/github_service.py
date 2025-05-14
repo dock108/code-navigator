@@ -46,4 +46,20 @@ def get_file_content(owner: str, repo: str, path: str) -> str:
             raise GithubException(404, "Not a file", None)
         return file_content.decoded_content.decode("utf-8", errors="replace")
     except GithubException as e:
+        raise e
+
+def get_repo_metadata(owner: str, repo: str) -> dict:
+    try:
+        repository = github_client.get_repo(f"{owner}/{repo}")
+        return {
+            "repo_name": repository.name,
+            "owner": repository.owner.login,
+            "description": repository.description or "",
+            "language": repository.language,
+            "stars": repository.stargazers_count,
+            "forks": repository.forks_count,
+            "open_issues": repository.open_issues_count,
+            "url": repository.html_url
+        }
+    except GithubException as e:
         raise e 
