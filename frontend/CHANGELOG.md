@@ -7,4 +7,5 @@
 - Added Home.jsx landing page with placeholder title and subtitle.
 - Integrated frontend with backend FastAPI endpoint to fetch and display repository metadata on the landing page, with loading and error handling.
 - Added Sidebar component to display repository file structure as an expandable/collapsible tree, with file click logging.
-- Added CodeViewer component to fetch and display file content with syntax highlighting when a file is selected from the sidebar. 
+- Added CodeViewer component to fetch and display file content with syntax highlighting when a file is selected from the sidebar.
+- Implemented jump-to-definition UI: highlights function/class names in Python files, enables smooth scrolling to definitions on click, and handles errors gracefully. 

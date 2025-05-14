@@ -75,3 +75,9 @@ GET http://localhost:8000/repo/{owner}/{repo}/metadata
 - Click a file in the sidebar to view its content in the main area.
 - File content is fetched from the backend and displayed with syntax highlighting using react-syntax-highlighter.
 - Loading and error states are handled gracefully.
+
+## Jump-to-Definition UI
+
+- When viewing a Python file, function and class names are highlighted in the code view.
+- Click a highlighted name to smoothly scroll to its definition line.
+- If definition data is unavailable, a message is shown and normal code view is used.

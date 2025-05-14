@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 
@@ -57,12 +57,17 @@ export default function CodeViewer({ filePath }) {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [definitions, setDefinitions] = useState([]);
+  const [defError, setDefError] = useState(null);
+  const codeContainerRef = useRef(null);
 
   useEffect(() => {
     if (!filePath) return;
     setLoading(true);
     setError(null);
     setContent("");
+    setDefinitions([]);
+    setDefError(null);
     fetch(
       `http://localhost:8000/repo/${OWNER}/${REPO}/file-content?path=${encodeURIComponent(
         filePath
@@ -80,6 +85,27 @@ export default function CodeViewer({ filePath }) {
         setError(err.message);
         setLoading(false);
       });
+
+    // Fetch definitions if Python file
+    if (filePath.endsWith(".py")) {
+      fetch(`http://localhost:8000/repo/${OWNER}/${REPO}/definitions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path: filePath }),
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("Could not fetch definitions");
+          return res.json();
+        })
+        .then((json) => {
+          setDefinitions(json.definitions || []);
+        })
+        .catch((err) => {
+          setDefError(err.message);
+        });
+    } else {
+      setDefinitions([]);
+    }
   }, [filePath]);
 
   if (!filePath) {
@@ -94,17 +120,113 @@ export default function CodeViewer({ filePath }) {
     return <div className="text-red-500">{error}</div>;
   }
 
-  return (
-    <div className="w-full h-full overflow-auto bg-white rounded shadow p-4">
-      <SyntaxHighlighter
-        language={getLanguageFromPath(filePath)}
-        style={oneLight}
-        showLineNumbers
-        wrapLongLines
-        customStyle={{ fontSize: 14, background: "#fff" }}
+  // Helper: map line numbers to definition names
+  const defLineMap = {};
+  definitions.forEach((def) => {
+    defLineMap[def.line] = def;
+  });
+
+  // Helper: get all definition names for quick lookup
+  const defNames = new Set(definitions.map((d) => d.name));
+
+  // Split code into lines for rendering and scrolling
+  const codeLines = content.split("\n");
+
+  // Scroll to a line number (1-based)
+  const scrollToLine = (line) => {
+    const el = document.getElementById(`code-line-${line}`);
+    console.log("Jump to line:", line, "Element found:", !!el);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  };
+
+  // Render each line, highlighting definition names and making them clickable
+  function renderLine(line, idx) {
+    const lineNum = idx + 1;
+    let rendered = line;
+    // Highlight definition name at its definition line
+    if (defLineMap[lineNum]) {
+      const def = defLineMap[lineNum];
+      // Only highlight the first occurrence of the name in the line
+      const nameIdx = line.indexOf(def.name);
+      if (nameIdx !== -1) {
+        rendered = (
+          <>
+            {line.slice(0, nameIdx)}
+            <span
+              className="text-blue-600 underline cursor-pointer font-semibold bg-blue-50 px-1 rounded"
+              onClick={() => scrollToLine(lineNum)}
+              title={`Jump to definition of ${def.name}`}
+            >
+              {def.name}
+            </span>
+            {line.slice(nameIdx + def.name.length)}
+          </>
+        );
+      }
+    } else {
+      // For all other lines, highlight references to definition names
+      for (const name of defNames) {
+        const nameIdx = line.indexOf(name);
+        if (nameIdx !== -1) {
+          rendered = (
+            <>
+              {line.slice(0, nameIdx)}
+              <span
+                className="text-blue-500 underline cursor-pointer hover:bg-blue-100 px-1 rounded"
+                onClick={() => scrollToLine(
+                  definitions.find((d) => d.name === name)?.line
+                )}
+                title={`Jump to definition of ${name}`}
+              >
+                {name}
+              </span>
+              {line.slice(nameIdx + name.length)}
+            </>
+          );
+          break;
+        }
+      }
+    }
+    return (
+      <div
+        key={lineNum}
+        id={`code-line-${lineNum}`}
+        className="whitespace-pre font-mono text-sm leading-6"
+        style={{ background: defLineMap[lineNum] ? "#e0f2fe" : undefined }}
       >
-        {content}
-      </SyntaxHighlighter>
+        <span className="select-none text-gray-400 pr-4" style={{ minWidth: 32, display: "inline-block" }}>
+          {lineNum}
+        </span>
+        {rendered}
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full h-full overflow-auto bg-white rounded shadow p-4" ref={codeContainerRef}>
+      {defError && (
+        <div className="text-red-400 mb-2">Jump-to-definition unavailable: {defError}</div>
+      )}
+      {definitions.length > 0 && (
+        <div className="mb-2 text-xs text-blue-700">Click a highlighted name to jump to its definition.</div>
+      )}
+      {content && filePath.endsWith(".py") && definitions.length > 0 ? (
+        <div>
+          {codeLines.map((line, idx) => renderLine(line, idx))}
+        </div>
+      ) : (
+        <SyntaxHighlighter
+          language={getLanguageFromPath(filePath)}
+          style={oneLight}
+          showLineNumbers
+          wrapLongLines
+          customStyle={{ fontSize: 14, background: "#fff" }}
+        >
+          {content}
+        </SyntaxHighlighter>
+      )}
     </div>
   );
 } 
