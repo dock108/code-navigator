@@ -69,3 +69,9 @@ GET http://localhost:8000/repo/{owner}/{repo}/metadata
 - Directories can be expanded/collapsed by clicking on them.
 - Files are shown with a file icon; clicking a file logs its path to the console.
 - The sidebar fetches data from the backend endpoint `/repo/{owner}/{repo}/files`.
+
+## File Content Viewing & Syntax Highlighting
+
+- Click a file in the sidebar to view its content in the main area.
+- File content is fetched from the backend and displayed with syntax highlighting using react-syntax-highlighter.
+- Loading and error states are handled gracefully.

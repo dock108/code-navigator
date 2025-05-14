@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
+import CodeViewer from "../components/CodeViewer";
 
 const OWNER = "dock108";
 const REPO = "code-navigator";
@@ -9,6 +10,7 @@ export default function Home() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedFile, setSelectedFile] = useState("");
 
   useEffect(() => {
     setLoading(true);
@@ -28,13 +30,17 @@ export default function Home() {
       });
   }, []);
 
+  const handleFileClick = (filePath) => {
+    setSelectedFile(filePath);
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
+      <Sidebar onFileClick={handleFileClick} />
       <main className="flex-1 flex flex-col items-center justify-center p-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Code Navigator</h1>
         <p className="text-lg text-gray-600 mb-8">Easily navigate GitHub repositories.</p>
-        <div className="w-full max-w-xl bg-white rounded-lg shadow p-6">
+        <div className="w-full max-w-xl bg-white rounded-lg shadow p-6 mb-8">
           {loading && <p className="text-gray-400">Loading repository data...</p>}
           {error && <p className="text-red-500">{error}</p>}
           {data && (
@@ -59,6 +65,9 @@ export default function Home() {
               </a>
             </>
           )}
+        </div>
+        <div className="w-full max-w-3xl flex-1">
+          <CodeViewer filePath={selectedFile} />
         </div>
       </main>
     </div>

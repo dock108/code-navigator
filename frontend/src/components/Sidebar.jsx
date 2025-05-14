@@ -4,7 +4,7 @@ const OWNER = "dock108";
 const REPO = "code-navigator";
 const API_URL = `http://localhost:8000/repo/${OWNER}/${REPO}/files`;
 
-function TreeNode({ node }) {
+function TreeNode({ node, onFileClick }) {
   const [expanded, setExpanded] = useState(false);
 
   if (node.type === "directory") {
@@ -20,7 +20,7 @@ function TreeNode({ node }) {
         {expanded && node.contents && node.contents.length > 0 && (
           <div className="ml-4 border-l border-gray-200 pl-2">
             {node.contents.map((child, idx) => (
-              <TreeNode node={child} key={child.path + idx} />
+              <TreeNode node={child} key={child.path + idx} onFileClick={onFileClick} />
             ))}
           </div>
         )}
@@ -33,7 +33,7 @@ function TreeNode({ node }) {
     return (
       <div
         className="ml-6 flex items-center cursor-pointer hover:text-blue-600"
-        onClick={() => console.log(node.path)}
+        onClick={() => onFileClick(node.path)}
       >
         <span className="mr-1">📄</span>
         <span>{node.path.split("/").pop()}</span>
@@ -42,7 +42,7 @@ function TreeNode({ node }) {
   }
 }
 
-export default function Sidebar() {
+export default function Sidebar({ onFileClick = () => {} }) {
   const [structure, setStructure] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -75,7 +75,7 @@ export default function Sidebar() {
       )}
       <div>
         {structure.map((node, idx) => (
-          <TreeNode node={node} key={node.path + idx} />
+          <TreeNode node={node} key={node.path + idx} onFileClick={onFileClick} />
         ))}
       </div>
     </aside>
