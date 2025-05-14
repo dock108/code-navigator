@@ -62,3 +62,10 @@ GET http://localhost:8000/repo/{owner}/{repo}/metadata
 
 - The data is displayed on the landing page with loading and error states handled gracefully.
 - You can change the owner/repo in `src/pages/Home.jsx` as needed.
+
+## Sidebar File Navigation
+
+- The sidebar on the left displays the repository file structure as an expandable/collapsible tree.
+- Directories can be expanded/collapsed by clicking on them.
+- Files are shown with a file icon; clicking a file logs its path to the console.
+- The sidebar fetches data from the backend endpoint `/repo/{owner}/{repo}/files`.

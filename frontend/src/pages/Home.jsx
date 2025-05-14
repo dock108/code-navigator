@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Sidebar from "../components/Sidebar";
 
 const OWNER = "dock108";
 const REPO = "code-navigator";
@@ -28,35 +29,38 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
-      <h1 className="text-4xl font-bold text-gray-900 mb-4">Code Navigator</h1>
-      <p className="text-lg text-gray-600 mb-8">Easily navigate GitHub repositories.</p>
-      <div className="w-full max-w-xl bg-white rounded-lg shadow p-6">
-        {loading && <p className="text-gray-400">Loading repository data...</p>}
-        {error && <p className="text-red-500">{error}</p>}
-        {data && (
-          <>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-              Repository: <span className="font-mono">{data.owner}/{data.repo_name}</span>
-            </h2>
-            <p className="text-gray-700 mb-2">{data.description || "No description provided."}</p>
-            <p className="text-gray-600 mb-2">Language: <span className="font-semibold">{data.language || "N/A"}</span></p>
-            <div className="flex items-center space-x-4 mb-2">
-              <span className="text-yellow-500">⭐ {data.stars}</span>
-              <span className="text-pink-500">🍴 {data.forks}</span>
-              <span className="text-blue-500">❗{data.open_issues}</span>
-            </div>
-            <a
-              href={data.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block mt-2 text-blue-600 hover:underline font-medium"
-            >
-              View on GitHub
-            </a>
-          </>
-        )}
-      </div>
+    <div className="flex min-h-screen bg-gray-50">
+      <Sidebar />
+      <main className="flex-1 flex flex-col items-center justify-center p-8">
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">Code Navigator</h1>
+        <p className="text-lg text-gray-600 mb-8">Easily navigate GitHub repositories.</p>
+        <div className="w-full max-w-xl bg-white rounded-lg shadow p-6">
+          {loading && <p className="text-gray-400">Loading repository data...</p>}
+          {error && <p className="text-red-500">{error}</p>}
+          {data && (
+            <>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+                Repository: <span className="font-mono">{data.owner}/{data.repo_name}</span>
+              </h2>
+              <p className="text-gray-700 mb-2">{data.description || "No description provided."}</p>
+              <p className="text-gray-600 mb-2">Language: <span className="font-semibold">{data.language || "N/A"}</span></p>
+              <div className="flex items-center space-x-4 mb-2">
+                <span className="text-yellow-500">⭐ {data.stars}</span>
+                <span className="text-pink-500">🍴 {data.forks}</span>
+                <span className="text-blue-500">❗{data.open_issues}</span>
+              </div>
+              <a
+                href={data.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block mt-2 text-blue-600 hover:underline font-medium"
+              >
+                View on GitHub
+              </a>
+            </>
+          )}
+        </div>
+      </main>
     </div>
   );
 } 
