@@ -97,4 +97,24 @@ This project uses the [PyGithub](https://pygithub.readthedocs.io/) library to in
       {"path": "Dockerfile", "type": "file"}
     ]
   }
+  ```
+
+### Get File Content
+
+- **Endpoint:** `/repo/{owner}/{repo}/file-content`
+- **Method:** GET
+- **Query Parameter:** `path` (required) — Path to the file within the repo
+- **Description:** Returns the raw content of a file in plain text. Responds with 404 if the file is not found.
+- **Example:**
+  ```bash
+  curl "http://localhost:8000/repo/dock108/code-navigator/file-content?path=app/main.py"
+  ```
+- **Response Example (Content-Type: text/plain):**
+  ```
+  from fastapi import FastAPI
+  app = FastAPI()
+
+  @app.get("/")
+  def read_root():
+      return {"message": "Hello, World!"}
   ``` 

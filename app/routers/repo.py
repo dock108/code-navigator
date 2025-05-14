@@ -1,6 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response, Query
 from github.GithubException import GithubException
-from app.services.github_service import get_repo_file_structure
+from app.services.github_service import get_repo_file_structure, get_file_content
 
 router = APIRouter()
 
@@ -11,6 +11,19 @@ def get_repo_files(owner: str, repo: str):
     except GithubException as e:
         if e.status == 404:
             raise HTTPException(status_code=404, detail="Repository not found.")
+        elif e.status == 401:
+            raise HTTPException(status_code=401, detail="Invalid or missing GitHub token.")
+        else:
+            raise HTTPException(status_code=500, detail="GitHub API error.")
+
+@router.get("/repo/{owner}/{repo}/file-content")
+def fetch_file_content(owner: str, repo: str, path: str = Query(..., description="Path to the file within the repo")):
+    try:
+        content = get_file_content(owner, repo, path)
+        return Response(content, media_type="text/plain")
+    except GithubException as e:
+        if e.status == 404:
+            raise HTTPException(status_code=404, detail="File not found.")
         elif e.status == 401:
             raise HTTPException(status_code=401, detail="Invalid or missing GitHub token.")
         else:

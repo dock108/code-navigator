@@ -36,4 +36,14 @@ def _build_structure(contents, repository) -> List[Dict[str, Any]]:
                     "path": content_file.path,
                     "type": "file"
                 })
-    return result 
+    return result
+
+def get_file_content(owner: str, repo: str, path: str) -> str:
+    try:
+        repository = github_client.get_repo(f"{owner}/{repo}")
+        file_content = repository.get_contents(path)
+        if file_content.type != "file":
+            raise GithubException(404, "Not a file", None)
+        return file_content.decoded_content.decode("utf-8", errors="replace")
+    except GithubException as e:
+        raise e 
