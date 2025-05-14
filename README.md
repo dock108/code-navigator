@@ -140,4 +140,23 @@ This project uses the [PyGithub](https://pygithub.readthedocs.io/) library to in
     "open_issues": 2,
     "url": "https://github.com/dock108/code-navigator"
   }
-  ``` 
+  ```
+
+### Jump to Definition (Python)
+
+- **Endpoint:** `/repo/{owner}/{repo}/definitions`
+- **Method:** POST
+- **Request Body:**
+  ```json
+  { "path": "app/main.py" }
+  ```
+- **Response Example:**
+  ```json
+  {
+    "definitions": [
+      {"name": "read_root", "type": "function", "line": 5},
+      {"name": "MyClass", "type": "class", "line": 12}
+    ]
+  }
+  ```
+- **Description:** Returns all function and class definitions (with line numbers) in a Python file. Handles errors for non-Python files and parse issues. 
