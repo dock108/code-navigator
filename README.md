@@ -55,4 +55,46 @@ To build and run the app in a container:
 docker build -t code-navigator-backend ./app
 
 docker run -p 8000:8000 code-navigator-backend
-``` 
+```
+
+## GitHub API Integration
+
+This project uses the [PyGithub](https://pygithub.readthedocs.io/) library to interact with the GitHub API.
+
+- **Authentication:**
+  - **For public repositories, a GitHub token is optional.**
+  - If you do not set a token, the API will still work for public repositories, but you will be subject to much lower rate limits (60 requests/hour per IP).
+  - Setting your GitHub personal access token in the environment variable `GITHUB_TOKEN` is recommended for higher rate limits (5,000 requests/hour) and reliability.
+  - Example (Unix/macOS):
+    ```bash
+    export GITHUB_TOKEN=your_token_here
+    ```
+
+## API Endpoints
+
+### Get Repository File Structure
+
+- **Endpoint:** `/repo/{owner}/{repo}/files`
+- **Method:** GET
+- **Description:** Returns the complete file structure of a public GitHub repository as nested JSON (does not include file contents).
+- **Example:**
+  ```bash
+  curl http://localhost:8000/repo/dock108/code-navigator/files
+  ```
+- **Response Example:**
+  ```json
+  {
+    "repo": "dock108/code-navigator",
+    "structure": [
+      {
+        "path": "app/",
+        "type": "directory",
+        "contents": [
+          {"path": "main.py", "type": "file"},
+          {"path": "routers/", "type": "directory", "contents": []}
+        ]
+      },
+      {"path": "Dockerfile", "type": "file"}
+    ]
+  }
+  ``` 
