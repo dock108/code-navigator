@@ -159,4 +159,23 @@ This project uses the [PyGithub](https://pygithub.readthedocs.io/) library to in
     ]
   }
   ```
-- **Description:** Returns all function and class definitions (with line numbers) in a Python file. Handles errors for non-Python files and parse issues. 
+- **Description:** Returns all function and class definitions (with line numbers) in a Python file. Handles errors for non-Python files and parse issues.
+
+### Find References (Python)
+
+- **Endpoint:** `/repo/{owner}/{repo}/references`
+- **Method:** POST
+- **Request Body:**
+  ```json
+  { "path": "app/main.py", "name": "read_root" }
+  ```
+- **Response Example:**
+  ```json
+  {
+    "references": [
+      {"line": 10, "snippet": "result = read_root()"},
+      {"line": 22, "snippet": "response = read_root()"}
+    ]
+  }
+  ```
+- **Description:** Returns all references (usages) of the given function or class name in the specified Python file, with line numbers and code snippets. Returns an empty list if no references are found. 

@@ -92,4 +92,22 @@ def get_python_definitions(owner: str, repo: str, path: str):
                 })
         return {"definitions": definitions}
     except GithubException as e:
+        raise e
+
+def find_python_references(owner: str, repo: str, path: str, name: str):
+    try:
+        repository = github_client.get_repo(f"{owner}/{repo}")
+        file_content = repository.get_contents(path)
+        if file_content.type != "file" or not path.endswith(".py"):
+            raise GithubException(400, "Not a Python file", None)
+        source = file_content.decoded_content.decode("utf-8", errors="replace")
+        references = []
+        for idx, line in enumerate(source.splitlines(), 1):
+            if name in line:
+                references.append({
+                    "line": idx,
+                    "snippet": line.strip()
+                })
+        return {"references": references}
+    except GithubException as e:
         raise e 
