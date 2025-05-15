@@ -100,3 +100,9 @@ GET http://localhost:8000/repo/{owner}/{repo}/metadata
 - When viewing a file, an AI-generated summary is fetched from the backend and displayed above the code viewer.
 - Loading and error states are clearly indicated.
 - Summaries help users quickly understand the purpose of each file.
+
+## YAML Context Export
+
+- Click the "Export YAML Context" button to download a structured YAML summary of the repository for AI use.
+- The file is downloaded as `{repo_name}-context.yaml`.
+- Loading and error states are clearly indicated in the UI.

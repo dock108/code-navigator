@@ -13,6 +13,8 @@ export default function Home() {
   const [error, setError] = useState(null);
   const [selectedFile, setSelectedFile] = useState("");
   const [showTree, setShowTree] = useState(false);
+  const [yamlLoading, setYamlLoading] = useState(false);
+  const [yamlError, setYamlError] = useState(null);
 
   useEffect(() => {
     setLoading(true);
@@ -36,18 +38,54 @@ export default function Home() {
     setSelectedFile(filePath);
   };
 
+  const handleExportYaml = async () => {
+    setYamlLoading(true);
+    setYamlError(null);
+    try {
+      const res = await fetch(
+        `http://localhost:8000/repo/${OWNER}/${REPO}/yaml-context`,
+        { headers: { Accept: "text/yaml" } }
+      );
+      if (!res.ok) throw new Error("Failed to fetch YAML context");
+      const yaml = await res.text();
+      const blob = new Blob([yaml], { type: "text/yaml" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${REPO}-context.yaml`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      setYamlLoading(false);
+    } catch (err) {
+      setYamlError(err.message);
+      setYamlLoading(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar onFileClick={handleFileClick} />
       <main className="flex-1 flex flex-col items-center justify-center p-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Code Navigator</h1>
         <p className="text-lg text-gray-600 mb-8">Easily navigate GitHub repositories.</p>
-        <button
-          className="mb-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-          onClick={() => setShowTree(true)}
-        >
-          Visualize Repo Structure
-        </button>
+        <div className="flex items-center space-x-4 mb-6">
+          <button
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            onClick={() => setShowTree(true)}
+          >
+            Visualize Repo Structure
+          </button>
+          <button
+            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+            onClick={handleExportYaml}
+            disabled={yamlLoading}
+          >
+            {yamlLoading ? "Exporting YAML..." : "Export YAML Context"}
+          </button>
+        </div>
+        {yamlError && <div className="text-red-500 mb-4">{yamlError}</div>}
         {showTree && <RepoTreeView onClose={() => setShowTree(false)} />}
         <div className="w-full max-w-xl bg-white rounded-lg shadow p-6 mb-8">
           {loading && <p className="text-gray-400">Loading repository data...</p>}
