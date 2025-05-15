@@ -10,4 +10,5 @@
 - Added CodeViewer component to fetch and display file content with syntax highlighting when a file is selected from the sidebar.
 - Implemented jump-to-definition UI: highlights function/class names in Python files, enables smooth scrolling to definitions on click, and handles errors gracefully.
 - Implemented find-references UI: clicking a highlighted name fetches and displays references in a modal, with loading and empty states handled gracefully.
-- Implemented repo structure visualization: interactive tree view using react-d3-tree, accessible from the landing page, with clear distinction between files and directories. 
+- Implemented repo structure visualization: interactive tree view using react-d3-tree, accessible from the landing page, with clear distinction between files and directories.
+- Integrated AI file summaries: fetches and displays GPT-4-generated summaries above the code viewer, with loading and error handling. 

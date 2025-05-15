@@ -5,6 +5,7 @@ import ReferencesModal from "./ReferencesModal";
 
 const OWNER = "dock108";
 const REPO = "code-navigator";
+const API_SUMMARY_URL = "http://localhost:8000/ai/summarize-file";
 
 function getLanguageFromPath(path) {
   if (!path) return "text";
@@ -66,6 +67,9 @@ export default function CodeViewer({ filePath }) {
   const [referencesLoading, setReferencesLoading] = useState(false);
   const [referencesError, setReferencesError] = useState(null);
   const [referencesSymbol, setReferencesSymbol] = useState("");
+  const [summary, setSummary] = useState("");
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summaryError, setSummaryError] = useState(null);
 
   useEffect(() => {
     if (!filePath) return;
@@ -111,6 +115,31 @@ export default function CodeViewer({ filePath }) {
         });
     } else {
       setDefinitions([]);
+    }
+
+    // Fetch AI summary for the file
+    setSummary("");
+    setSummaryLoading(false);
+    setSummaryError(null);
+    if (filePath) {
+      setSummaryLoading(true);
+      fetch(API_SUMMARY_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ owner: OWNER, repo: REPO, path: filePath }),
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to fetch summary");
+          return res.json();
+        })
+        .then((json) => {
+          setSummary(json.summary || "");
+          setSummaryLoading(false);
+        })
+        .catch((err) => {
+          setSummaryError(err.message);
+          setSummaryLoading(false);
+        });
     }
   }, [filePath]);
 
@@ -233,6 +262,17 @@ export default function CodeViewer({ filePath }) {
 
   return (
     <div className="w-full h-full overflow-auto bg-white rounded shadow p-4" ref={codeContainerRef}>
+      {/* AI Summary UI */}
+      {filePath && (
+        <div className="mb-4">
+          <div className="font-semibold text-gray-700 mb-1">AI Summary:</div>
+          {summaryLoading && <div className="text-gray-400 animate-pulse">Generating summary…</div>}
+          {summaryError && <div className="text-red-500">{summaryError}</div>}
+          {!summaryLoading && !summaryError && summary && (
+            <div className="bg-blue-50 border border-blue-200 rounded p-3 text-blue-900 text-sm mb-2">{summary}</div>
+          )}
+        </div>
+      )}
       <ReferencesModal
         open={referencesModalOpen}
         onClose={() => setReferencesModalOpen(false)}

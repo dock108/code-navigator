@@ -94,3 +94,9 @@ GET http://localhost:8000/repo/{owner}/{repo}/metadata
 - The tree is fetched from the backend and rendered using react-d3-tree.
 - Directories and files are visually distinct; nodes can be expanded/collapsed.
 - Loading and error states are handled gracefully.
+
+## AI File Summaries
+
+- When viewing a file, an AI-generated summary is fetched from the backend and displayed above the code viewer.
+- Loading and error states are clearly indicated.
+- Summaries help users quickly understand the purpose of each file.
