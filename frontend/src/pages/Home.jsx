@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import CodeViewer from "../components/CodeViewer";
+import RepoTreeView from "../components/RepoTreeView";
 
 const OWNER = "dock108";
 const REPO = "code-navigator";
@@ -11,6 +12,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedFile, setSelectedFile] = useState("");
+  const [showTree, setShowTree] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -40,6 +42,13 @@ export default function Home() {
       <main className="flex-1 flex flex-col items-center justify-center p-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Code Navigator</h1>
         <p className="text-lg text-gray-600 mb-8">Easily navigate GitHub repositories.</p>
+        <button
+          className="mb-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          onClick={() => setShowTree(true)}
+        >
+          Visualize Repo Structure
+        </button>
+        {showTree && <RepoTreeView onClose={() => setShowTree(false)} />}
         <div className="w-full max-w-xl bg-white rounded-lg shadow p-6 mb-8">
           {loading && <p className="text-gray-400">Loading repository data...</p>}
           {error && <p className="text-red-500">{error}</p>}
