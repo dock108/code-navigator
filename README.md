@@ -178,4 +178,27 @@ This project uses the [PyGithub](https://pygithub.readthedocs.io/) library to in
     ]
   }
   ```
-- **Description:** Returns all references (usages) of the given function or class name in the specified Python file, with line numbers and code snippets. Returns an empty list if no references are found. 
+- **Description:** Returns all references (usages) of the given function or class name in the specified Python file, with line numbers and code snippets. Returns an empty list if no references are found.
+
+### Repo Structure Visualization
+
+- **Endpoint:** `/repo/{owner}/{repo}/structure-visualization`
+- **Method:** GET
+- **Response Example:**
+  ```json
+  {
+    "repo": "dock108/code-navigator",
+    "structure": [
+      {
+        "name": "app",
+        "type": "directory",
+        "children": [
+          { "name": "main.py", "type": "file" },
+          { "name": "routers", "type": "directory", "children": [] }
+        ]
+      },
+      { "name": "Dockerfile", "type": "file" }
+    ]
+  }
+  ```
+- **Description:** Returns a nested JSON structure suitable for visualizing the repository's file/module architecture. Handles errors for invalid repositories. 

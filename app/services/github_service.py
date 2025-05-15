@@ -110,4 +110,33 @@ def find_python_references(owner: str, repo: str, path: str, name: str):
                 })
         return {"references": references}
     except GithubException as e:
-        raise e 
+        raise e
+
+def get_repo_structure_visualization(owner: str, repo: str):
+    try:
+        repository = github_client.get_repo(f"{owner}/{repo}")
+        contents = repository.get_contents("")
+        structure = _build_visualization_structure(contents, repository)
+        return {
+            "repo": f"{owner}/{repo}",
+            "structure": structure
+        }
+    except GithubException as e:
+        raise e
+
+def _build_visualization_structure(contents, repository):
+    result = []
+    for content_file in contents if isinstance(contents, list) else [contents]:
+        if content_file.type == "dir":
+            dir_contents = repository.get_contents(content_file.path)
+            result.append({
+                "name": content_file.name,
+                "type": "directory",
+                "children": _build_visualization_structure(dir_contents, repository)
+            })
+        else:
+            result.append({
+                "name": content_file.name,
+                "type": "file"
+            })
+    return result 
