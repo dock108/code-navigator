@@ -1,7 +1,8 @@
+import app.config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import repo
-import app.config
+from app.routers import ai
 
 app = FastAPI()
 
@@ -14,6 +15,7 @@ app.add_middleware(
 )
 
 app.include_router(repo.router)
+app.include_router(ai.router)
 
 @app.get("/")
 def read_root():

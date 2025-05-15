@@ -4,6 +4,7 @@ from typing import List, Dict, Any
 import ast
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+print("GITHUB_TOKEN loaded:", bool(GITHUB_TOKEN))
 
 github_client = Github(GITHUB_TOKEN) if GITHUB_TOKEN else Github()
 
