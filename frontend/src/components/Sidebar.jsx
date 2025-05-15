@@ -65,7 +65,12 @@ export default function Sidebar({ onFileClick = () => {}, owner = "dock108", rep
   return (
     <aside className="w-64 h-screen overflow-y-auto bg-gray-100 border-r border-gray-200 p-4">
       <h2 className="text-lg font-bold mb-4">Files</h2>
-      {loading && <p className="text-gray-400">Loading...</p>}
+      {loading && (
+        <div className="flex items-center text-gray-400 py-6">
+          <svg className="animate-spin h-5 w-5 mr-2 text-blue-400" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
+          Loading…
+        </div>
+      )}
       {error && <p className="text-red-500">{error}</p>}
       {!loading && !error && structure.length === 0 && (
         <p className="text-gray-400">No files found.</p>
