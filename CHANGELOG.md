@@ -17,6 +17,7 @@
 - Added POST /ai/summarize-file endpoint to summarize the content of a specified repository file using GPT-4, with error handling.
 - Added GET /repo/{owner}/{repo}/yaml-context endpoint to export structured YAML context for AI, including repo layout, modules, entry points, and metadata.
 - Added /repo/{owner}/{repo}/vibe endpoint: generates a friendly, detailed Markdown summary (VIBE.md) of the repository using GPT-4, designed for non-technical users ("vibecoders").
+- Quick Integration Guide endpoint (`GET /repo/{owner}/{repo}/quick-guide`) clearly implemented using GPT-4.
 ### Updated
 - Backend README clearly updated to reflect simplified MVP endpoints and usage clearly.
 ### Removed

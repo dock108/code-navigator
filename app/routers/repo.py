@@ -120,4 +120,41 @@ Write in clear, non-technical language. Format the output as Markdown, with head
         else:
             raise_error(502, "GitHub API error.", "ExternalAPIError")
     except Exception as e:
-        raise_error(500, f"VIBE.md generation failed: {str(e)}", "InternalError") 
+        raise_error(500, f"VIBE.md generation failed: {str(e)}", "InternalError")
+
+@router.get("/repo/{owner}/{repo}/quick-guide")
+async def get_quick_integration_guide(owner: str, repo: str):
+    try:
+        metadata = get_repo_metadata(owner, repo)
+        prompt = f"""
+You are an expert software engineer helping developers integrate and quickly use open-source repositories.
+
+Provide clear, concise, step-by-step instructions for quickly integrating or using the GitHub repository '{owner}/{repo}' in common project types:
+
+- React frontend projects
+- Node.js backend/API projects
+- Python backend or data-related projects
+
+Clearly use markdown formatting. Include necessary installation commands, important initial setup steps, and brief code examples clearly illustrating typical usage.
+
+Repository metadata:
+Name: {metadata.get('repo_name')}
+Owner: {metadata.get('owner')}
+Description: {metadata.get('description')}
+Language: {metadata.get('language')}
+Stars: {metadata.get('stars')}
+Forks: {metadata.get('forks')}
+Open Issues: {metadata.get('open_issues')}
+URL: {metadata.get('url')}
+"""
+        guide = await gpt4_summarize(prompt)
+        return {"guide_markdown": guide}
+    except GithubException as e:
+        if e.status == 404:
+            raise_error(404, "Repository not found.", "NotFound")
+        elif e.status == 401:
+            raise_error(401, "Invalid or missing GitHub token.", "ExternalAPIError")
+        else:
+            raise_error(502, "GitHub API error.", "ExternalAPIError")
+    except Exception as e:
+        raise_error(502, f"Failed to generate quick integration guide: {str(e)}", "ExternalAPIError") 

@@ -114,6 +114,21 @@ The server will be available at [http://localhost:8000/](http://localhost:8000/)
 
 ---
 
+### GET /repo/{owner}/{repo}/quick-guide
+- **Description:** Generates a concise, practical Quick Integration Guide (in markdown) for using the repository in React, Node.js, and Python projects, powered by GPT-4.
+- **Example Request:**
+  ```bash
+  curl http://localhost:8000/repo/octocat/Hello-World/quick-guide
+  ```
+- **Response Example:**
+  ```json
+  {
+    "guide_markdown": "# Quick Integration Guide\n\n- Step 1 clearly explained...\n- Step 2 clearly explained...\n"
+  }
+  ```
+
+---
+
 ### POST /ai/summarize-file
 - **Description:** Uses GPT-4 to summarize the functionality and purpose of a specific file in the repository.
 - **Request Body:**
