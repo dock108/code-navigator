@@ -16,4 +16,11 @@
 - Added GET /repo/{owner}/{repo}/structure-visualization endpoint to return repo structure in a nested format for visualization.
 - Added POST /ai/summarize-file endpoint to summarize the content of a specified repository file using GPT-4, with error handling.
 - Added GET /repo/{owner}/{repo}/yaml-context endpoint to export structured YAML context for AI, including repo layout, modules, entry points, and metadata.
-- Added /repo/{owner}/{repo}/vibe endpoint: generates a friendly, detailed Markdown summary (VIBE.md) of the repository using GPT-4, designed for non-technical users ("vibecoders"). 
+- Added /repo/{owner}/{repo}/vibe endpoint: generates a friendly, detailed Markdown summary (VIBE.md) of the repository using GPT-4, designed for non-technical users ("vibecoders").
+### Updated
+- Backend README clearly updated to reflect simplified MVP endpoints and usage clearly.
+### Removed
+- Clearly removed advanced file-level navigation endpoints:
+  - `/definitions`, `/references`, `/structure-visualization`
+### Changed
+- Clearly standardized backend API error responses across all endpoints, providing clear and structured error messages. 

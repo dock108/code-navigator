@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
-import ReferencesModal from "./ReferencesModal";
+import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
 
 const API_SUMMARY_URL = "http://localhost:8000/ai/summarize-file";
 
@@ -53,29 +54,35 @@ function getLanguageFromPath(path) {
   }
 }
 
-export default function CodeViewer({ filePath, owner = "dock108", repo = "code-navigator" }) {
+export default function CodeViewer({ filePath, owner, repo }) {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [definitions, setDefinitions] = useState([]);
-  const [defError, setDefError] = useState(null);
   const codeContainerRef = useRef(null);
-  const [referencesModalOpen, setReferencesModalOpen] = useState(false);
-  const [references, setReferences] = useState([]);
-  const [referencesLoading, setReferencesLoading] = useState(false);
-  const [referencesError, setReferencesError] = useState(null);
-  const [referencesSymbol, setReferencesSymbol] = useState("");
   const [summary, setSummary] = useState("");
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryError, setSummaryError] = useState(null);
+  const [summaryRequested, setSummaryRequested] = useState(false);
 
   useEffect(() => {
-    if (!filePath) return;
+    if (!filePath || !owner || !repo) {
+      setContent("");
+      setError(null);
+      setLoading(false);
+      setSummary("");
+      setSummaryError(null);
+      setSummaryLoading(false);
+      setSummaryRequested(false);
+      return;
+    }
     setLoading(true);
     setError(null);
     setContent("");
-    setDefinitions([]);
-    setDefError(null);
+    setSummary("");
+    setSummaryError(null);
+    setSummaryLoading(false);
+    setSummaryRequested(false);
+
     fetch(
       `http://localhost:8000/repo/${owner}/${repo}/file-content?path=${encodeURIComponent(
         filePath
@@ -93,213 +100,78 @@ export default function CodeViewer({ filePath, owner = "dock108", repo = "code-n
         setError(err.message);
         setLoading(false);
       });
+  }, [filePath, owner, repo]);
 
-    // Fetch definitions if Python file
-    if (filePath.endsWith(".py")) {
-      fetch(`http://localhost:8000/repo/${owner}/${repo}/definitions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ path: filePath }),
-      })
-        .then((res) => {
-          if (!res.ok) throw new Error("Could not fetch definitions");
-          return res.json();
-        })
-        .then((json) => {
-          setDefinitions(json.definitions || []);
-        })
-        .catch((err) => {
-          setDefError(err.message);
-        });
-    } else {
-      setDefinitions([]);
-    }
-
-    // Fetch AI summary for the file
-    setSummary("");
-    setSummaryLoading(false);
+  const handleGenerateSummary = async () => {
+    if (!filePath || !owner || !repo) return;
+    setSummaryRequested(true);
+    setSummaryLoading(true);
     setSummaryError(null);
-    if (filePath) {
-      setSummaryLoading(true);
-      fetch(API_SUMMARY_URL, {
+    setSummary("");
+    try {
+      const res = await fetch(API_SUMMARY_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ owner, repo, path: filePath }),
-      })
-        .then((res) => {
-          if (!res.ok) throw new Error("Failed to fetch summary");
-          return res.json();
-        })
-        .then((json) => {
-          setSummary(json.summary || "");
-          setSummaryLoading(false);
-        })
-        .catch((err) => {
-          setSummaryError(err.message);
-          setSummaryLoading(false);
-        });
-    }
-  }, [filePath, owner, repo]);
-
-  // Fetch references for a symbol and open modal
-  const handleFindReferences = (symbol) => {
-    setReferencesModalOpen(true);
-    setReferences([]);
-    setReferencesLoading(true);
-    setReferencesError(null);
-    setReferencesSymbol(symbol);
-    fetch(`http://localhost:8000/repo/${owner}/${repo}/references`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ path: filePath, name: symbol }),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Could not fetch references");
-        return res.json();
-      })
-      .then((json) => {
-        setReferences(json.references || []);
-        setReferencesLoading(false);
-      })
-      .catch((err) => {
-        setReferencesError(err.message);
-        setReferencesLoading(false);
       });
+      if (!res.ok) throw new Error(`Failed to fetch summary (status: ${res.status})`);
+      const json = await res.json();
+      setSummary(json.summary || "");
+    } catch (err) {
+      setSummaryError(err.message);
+    } finally {
+      setSummaryLoading(false);
+    }
   };
 
-  if (!filePath) {
-    return <div className="text-gray-400">Select a file to view its content.</div>;
+  if (!filePath || !owner || !repo) {
+    return <div className="text-gray-500 p-4 text-center">Select a file to view its content.</div>;
   }
 
   if (loading) {
-    return <div className="text-gray-400 animate-pulse">Loading file...</div>;
+    return <div className="text-gray-400 animate-pulse p-4 text-center">Loading file...</div>;
   }
 
   if (error) {
-    return <div className="text-red-500">{error}</div>;
-  }
-
-  // Helper: map line numbers to definition names
-  const defLineMap = {};
-  definitions.forEach((def) => {
-    defLineMap[def.line] = def;
-  });
-
-  // Helper: get all definition names for quick lookup
-  const defNames = new Set(definitions.map((d) => d.name));
-
-  // Split code into lines for rendering and scrolling
-  const codeLines = content.split("\n");
-
-  // Scroll to a line number (1-based)
-  const scrollToLine = (line) => {
-    const el = document.getElementById(`code-line-${line}`);
-    console.log("Jump to line:", line, "Element found:", !!el);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-  };
-
-  // Render each line, highlighting definition names and making them clickable
-  function renderLine(line, idx) {
-    const lineNum = idx + 1;
-    let rendered = line;
-    if (defLineMap[lineNum]) {
-      const def = defLineMap[lineNum];
-      const nameIdx = line.indexOf(def.name);
-      if (nameIdx !== -1) {
-        rendered = (
-          <>
-            {line.slice(0, nameIdx)}
-            <span
-              className="text-blue-600 underline cursor-pointer font-semibold bg-blue-50 px-1 rounded"
-              onClick={() => handleFindReferences(def.name)}
-              title={`Find references for ${def.name}`}
-            >
-              {def.name}
-            </span>
-            {line.slice(nameIdx + def.name.length)}
-          </>
-        );
-      }
-    } else {
-      for (const name of defNames) {
-        const nameIdx = line.indexOf(name);
-        if (nameIdx !== -1) {
-          rendered = (
-            <>
-              {line.slice(0, nameIdx)}
-              <span
-                className="text-blue-500 underline cursor-pointer hover:bg-blue-100 px-1 rounded"
-                onClick={() => handleFindReferences(name)}
-                title={`Find references for ${name}`}
-              >
-                {name}
-              </span>
-              {line.slice(nameIdx + name.length)}
-            </>
-          );
-          break;
-        }
-      }
-    }
-    return (
-      <div
-        key={lineNum}
-        id={`code-line-${lineNum}`}
-        className="whitespace-pre font-mono text-sm leading-6"
-        style={{ background: defLineMap[lineNum] ? "#e0f2fe" : undefined }}
-      >
-        <span className="select-none text-gray-400 pr-4" style={{ minWidth: 32, display: "inline-block" }}>
-          {lineNum}
-        </span>
-        {rendered}
-      </div>
-    );
+    return <div className="text-red-500 p-4 text-center">{error}</div>;
   }
 
   return (
-    <div className="w-full h-full overflow-auto bg-white rounded shadow p-4" ref={codeContainerRef}>
-      {/* AI Summary UI */}
-      {filePath && (
-        <div className="mb-4">
-          <div className="font-semibold text-gray-700 mb-1">AI Summary:</div>
-          {summaryLoading && <div className="text-gray-400 animate-pulse">Generating summary…</div>}
-          {summaryError && <div className="text-red-500">{summaryError}</div>}
-          {!summaryLoading && !summaryError && summary && (
-            <div className="bg-blue-50 border border-blue-200 rounded p-3 text-blue-900 text-sm mb-2">{summary}</div>
+    <div className="w-full h-full overflow-auto bg-white rounded shadow p-4 flex flex-col" ref={codeContainerRef}>
+      {filePath && owner && repo && (
+        <div className="mb-4 pb-4 border-b border-gray-200">
+          {!summaryRequested && (
+            <button 
+              onClick={handleGenerateSummary}
+              className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition"
+            >
+              Generate AI Summary
+            </button>
+          )}
+          {summaryRequested && summaryLoading && <div className="text-gray-400 animate-pulse text-center py-2">Generating summary…</div>}
+          {summaryRequested && summaryError && <div className="text-red-500 text-center py-2">Error: {summaryError}</div>}
+          {summaryRequested && !summaryLoading && !summaryError && summary && (
+            <div className="mt-2">
+              <h3 className="text-md font-semibold text-gray-700 mb-1">AI Summary:</h3>
+              <div className="bg-indigo-50 border border-indigo-200 rounded p-3 text-indigo-900 text-sm prose max-w-none prose-sm sm:prose lg:prose-lg xl:prose-xl">
+                <ReactMarkdown rehypePlugins={[rehypeRaw]}>{summary}</ReactMarkdown>
+              </div>
+            </div>
           )}
         </div>
       )}
-      <ReferencesModal
-        open={referencesModalOpen}
-        onClose={() => setReferencesModalOpen(false)}
-        references={references}
-        loading={referencesLoading}
-        error={referencesError}
-        symbol={referencesSymbol}
-      />
-      {defError && (
-        <div className="text-red-400 mb-2">Jump-to-definition unavailable: {defError}</div>
-      )}
-      {definitions.length > 0 && (
-        <div className="mb-2 text-xs text-blue-700">Click a highlighted name to jump to its definition or find references.</div>
-      )}
-      {content && filePath.endsWith(".py") && definitions.length > 0 ? (
-        <div>
-          {codeLines.map((line, idx) => renderLine(line, idx))}
-        </div>
-      ) : (
+      <div className="flex-1 overflow-y-auto">
         <SyntaxHighlighter
           language={getLanguageFromPath(filePath)}
           style={oneLight}
           showLineNumbers
           wrapLongLines
-          customStyle={{ fontSize: 14, background: "#fff" }}
+          customStyle={{ fontSize: 13, background: "#fff", lineHeight: "1.45" }}
+          lineNumberStyle={{ minWidth: "3.25em", paddingRight: "1em", textAlign: "right", color: "#aaa", userSelect: "none"}}
         >
           {content}
         </SyntaxHighlighter>
-      )}
+      </div>
     </div>
   );
 } 

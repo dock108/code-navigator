@@ -1,282 +1,182 @@
 # Code Navigator Backend
 
-This is the backend foundation for the Code Navigator web app, built with FastAPI.
+## Introduction
 
-## Project Structure
+The Code Navigator backend is a FastAPI service that powers the Code Navigator app. It provides endpoints for summarizing GitHub repositories, fetching file content, exporting YAML context, and generating AI-powered summaries. The backend integrates with the GitHub API and OpenAI GPT-4 to deliver clear, user-friendly insights into any public GitHub repository.
 
-```
-/app
-├── main.py (FastAPI entry point)
-├── routers (empty directory for now)
-├── services (empty directory for now)
-├── utils (empty directory for now)
-├── schemas (empty directory for now)
-├── tests (empty directory for now)
-├── config.py (basic app configuration)
-├── requirements.txt
-└── Dockerfile (basic dockerization structure)
-```
+---
 
-## Getting Started
+## Setup & Installation
 
-### 1. Install dependencies
+### 1. Clone the Repository
 
 ```bash
-pip install -r app/requirements.txt
+git clone https://github.com/your-username/code-navigator.git
+cd code-navigator/app
 ```
 
-### 2. Run the server
+### 2. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Set Required Environment Variables
+
+Create a `.env` file or export the following variables in your shell:
+
+- `GITHUB_TOKEN`: Your GitHub personal access token (for higher rate limits and private repo access)
+- `OPENAI_API_KEY`: Your OpenAI API key (for GPT-4 summaries)
+
+Example:
+```bash
+export GITHUB_TOKEN=your_github_token_here
+export OPENAI_API_KEY=your_openai_api_key_here
+```
+
+### 4. Run the FastAPI Backend Locally
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
-The server will be accessible at [http://localhost:8000/](http://localhost:8000/).
+The server will be available at [http://localhost:8000/](http://localhost:8000/).
 
-### 3. Test the root endpoint
+---
 
-Navigate to [http://localhost:8000/](http://localhost:8000/) or run:
+## Environment Variables
 
-```bash
-curl http://localhost:8000/
-```
+| Variable           | Description                                 |
+|--------------------|---------------------------------------------|
+| `GITHUB_TOKEN`     | GitHub API key (required for higher rate limits and private repos) |
+| `OPENAI_API_KEY`   | OpenAI API key for GPT-4 (required for AI summaries) |
 
-You should see:
-
-```json
-{"message": "Hello, World!"}
-```
-
-## Docker
-
-To build and run the app in a container:
-
-```bash
-docker build -t code-navigator-backend ./app
-
-docker run -p 8000:8000 code-navigator-backend
-```
-
-## GitHub API Integration
-
-This project uses the [PyGithub](https://pygithub.readthedocs.io/) library to interact with the GitHub API.
-
-- **Authentication:**
-  - **For public repositories, a GitHub token is optional.**
-  - If you do not set a token, the API will still work for public repositories, but you will be subject to much lower rate limits (60 requests/hour per IP).
-  - Setting your GitHub personal access token in the environment variable `GITHUB_TOKEN` is recommended for higher rate limits (5,000 requests/hour) and reliability.
-  - Example (Unix/macOS):
-    ```bash
-    export GITHUB_TOKEN=your_token_here
-    ```
+---
 
 ## API Endpoints
 
-### Get Repository File Structure
-
-- **Endpoint:** `/repo/{owner}/{repo}/files`
-- **Method:** GET
-- **Description:** Returns the complete file structure of a public GitHub repository as nested JSON (does not include file contents).
-- **Example:**
-  ```bash
-  curl http://localhost:8000/repo/dock108/code-navigator/files
-  ```
-- **Response Example:**
-  ```json
-  {
-    "repo": "dock108/code-navigator",
-    "structure": [
-      {
-        "path": "app/",
-        "type": "directory",
-        "contents": [
-          {"path": "main.py", "type": "file"},
-          {"path": "routers/", "type": "directory", "contents": []}
-        ]
-      },
-      {"path": "Dockerfile", "type": "file"}
-    ]
-  }
-  ```
-
-### Get File Content
-
-- **Endpoint:** `/repo/{owner}/{repo}/file-content`
-- **Method:** GET
-- **Query Parameter:** `path` (required) — Path to the file within the repo
-- **Description:** Returns the raw content of a file in plain text. Responds with 404 if the file is not found.
-- **Example:**
-  ```bash
-  curl "http://localhost:8000/repo/dock108/code-navigator/file-content?path=app/main.py"
-  ```
-- **Response Example (Content-Type: text/plain):**
-  ```
-  from fastapi import FastAPI
-  app = FastAPI()
-
-  @app.get("/")
-  def read_root():
-      return {"message": "Hello, World!"}
-  ```
-
-### Get Repository Metadata
-
-- **Endpoint:** `/repo/{owner}/{repo}/metadata`
-- **Method:** GET
+### GET /repo/{owner}/{repo}/metadata
 - **Description:** Returns basic metadata about a GitHub repository.
-- **Example:**
+- **Example Request:**
   ```bash
-  curl http://localhost:8000/repo/dock108/code-navigator/metadata
+  curl http://localhost:8000/repo/octocat/Hello-World/metadata
   ```
 - **Response Example:**
   ```json
   {
-    "repo_name": "code-navigator",
-    "owner": "dock108",
-    "description": "Read-only app for easy navigation of large GitHub repos.",
+    "repo_name": "Hello-World",
+    "owner": "octocat",
+    "description": "This your first repo!",
     "language": "Python",
-    "stars": 4,
-    "forks": 0,
+    "stars": 42,
+    "forks": 10,
     "open_issues": 2,
-    "url": "https://github.com/dock108/code-navigator"
+    "url": "https://github.com/octocat/Hello-World"
   }
   ```
 
-### Jump to Definition (Python)
+---
 
-- **Endpoint:** `/repo/{owner}/{repo}/definitions`
-- **Method:** POST
-- **Request Body:**
-  ```json
-  { "path": "app/main.py" }
+### GET /repo/{owner}/{repo}/file-content?path={file_path}
+- **Description:** Returns the raw content of a file in plain text.
+- **Query Parameter:** `path` (required) — Path to the file within the repo
+- **Example Request:**
+  ```bash
+  curl "http://localhost:8000/repo/octocat/Hello-World/file-content?path=README.md"
   ```
-- **Response Example:**
-  ```json
-  {
-    "definitions": [
-      {"name": "read_root", "type": "function", "line": 5},
-      {"name": "MyClass", "type": "class", "line": 12}
-    ]
-  }
+- **Response:**
+  - Content-Type: text/plain
+  - Body: Raw file content
+
+---
+
+### GET /repo/{owner}/{repo}/yaml-context
+- **Description:** Returns a structured YAML summary of the repository layout, modules, entry points, and metadata for AI ingestion.
+- **Example Request:**
+  ```bash
+  curl http://localhost:8000/repo/octocat/Hello-World/yaml-context
   ```
-- **Description:** Returns all function and class definitions (with line numbers) in a Python file. Handles errors for non-Python files and parse issues.
+- **Response:**
+  - Content-Type: text/yaml
+  - Body: YAML summary
 
-### Find References (Python)
-
-- **Endpoint:** `/repo/{owner}/{repo}/references`
-- **Method:** POST
-- **Request Body:**
-  ```json
-  { "path": "app/main.py", "name": "read_root" }
-  ```
-- **Response Example:**
-  ```json
-  {
-    "references": [
-      {"line": 10, "snippet": "result = read_root()"},
-      {"line": 22, "snippet": "response = read_root()"}
-    ]
-  }
-  ```
-- **Description:** Returns all references (usages) of the given function or class name in the specified Python file, with line numbers and code snippets. Returns an empty list if no references are found.
-
-### Repo Structure Visualization
-
-- **Endpoint:** `/repo/{owner}/{repo}/structure-visualization`
-- **Method:** GET
-- **Response Example:**
-  ```json
-  {
-    "repo": "dock108/code-navigator",
-    "structure": [
-      {
-        "name": "app",
-        "type": "directory",
-        "children": [
-          { "name": "main.py", "type": "file" },
-          { "name": "routers", "type": "directory", "children": [] }
-        ]
-      },
-      { "name": "Dockerfile", "type": "file" }
-    ]
-  }
-  ```
-- **Description:** Returns a nested JSON structure suitable for visualizing the repository's file/module architecture. Handles errors for invalid repositories.
-
-### Summarize File (AI)
-
-- **Endpoint:** `/ai/summarize-file`
-- **Method:** POST
-- **Request Body:**
-  ```json
-  {
-    "owner": "dock108",
-    "repo": "code-navigator",
-    "path": "app/main.py"
-  }
-  ```
-- **Response Example:**
-  ```json
-  {
-    "summary": "The main FastAPI application entry point defining the root endpoint."
-  }
-  ```
-- **Description:** Uses GPT-4 to summarize the functionality and purpose of the specified file. Handles errors for missing files or API issues.
-
-### YAML Context Export
-
-- **Endpoint:** `/repo/{owner}/{repo}/yaml-context`
-- **Method:** GET
-- **Response Content-Type:** `text/yaml`
-- **Response Example:**
-  ```yaml
-  repo_name: code-navigator
-  language: Python
-  modules:
-    - path: app/
-      description: Main application components.
-      important_files:
-        - file: main.py
-          purpose: Application entry-point.
-  entry_points:
-    - app/main.py
-  key_concepts:
-    - FastAPI
-    - REST API
-    - GitHub integration
-  high_level_overview: |
-    This repository contains a FastAPI backend and React frontend designed to simplify codebase navigation.
-  ```
-- **Description:** Returns a structured YAML summary of the repository layout, modules, entry points, and metadata for AI ingestion. Handles errors gracefully.
+---
 
 ### GET /repo/{owner}/{repo}/vibe
-
-Generates a friendly, detailed Markdown summary ("VIBE.md") of the repository using GPT-4, designed for non-technical users ("vibecoders").
-
-- **Purpose:** Provides a high-level overview, file structure, key modules, and the general logic and "vibe" of the repo in clear, non-technical language.
+- **Description:** Generates a friendly, detailed Markdown summary ("VIBE.md") of the repository using GPT-4, designed for non-technical users.
+- **Example Request:**
+  ```bash
+  curl http://localhost:8000/repo/octocat/Hello-World/vibe
+  ```
 - **Response:**
   - Content-Type: text/markdown
-  - Body: Markdown summary generated by GPT-4
-- **Example:**
-  ```http
-  GET /repo/octocat/Hello-World/vibe
-  Content-Type: text/markdown
+  - Body: Markdown summary
+
+---
+
+### POST /ai/summarize-file
+- **Description:** Uses GPT-4 to summarize the functionality and purpose of a specific file in the repository.
+- **Request Body:**
+  ```json
+  {
+    "owner": "octocat",
+    "repo": "Hello-World",
+    "path": "main.py"
+  }
   ```
-- **Error Handling:** Returns 500 with a clear error message if summary generation fails.
-
-## Backend Endpoints
-
-### GET /repo/{owner}/{repo}/vibe
-
-Generates a friendly, detailed Markdown summary ("VIBE.md") of the repository using GPT-4, designed for non-technical users ("vibecoders").
-
-- **Purpose:** Provides a high-level overview, file structure, key modules, and the general logic and "vibe" of the repo in clear, non-technical language.
-- **Response:**
-  - Content-Type: text/markdown
-  - Body: Markdown summary generated by GPT-4
-- **Example:**
-  ```http
-  GET /repo/octocat/Hello-World/vibe
-  Content-Type: text/markdown
+- **Example Request:**
+  ```bash
+  curl -X POST http://localhost:8000/ai/summarize-file \
+    -H "Content-Type: application/json" \
+    -d '{"owner": "octocat", "repo": "Hello-World", "path": "main.py"}'
   ```
-- **Error Handling:** Returns 500 with a clear error message if summary generation fails. 
+- **Response Example:**
+  ```json
+  {
+    "summary": "This file defines the main FastAPI application entry point."
+  }
+  ```
+
+---
+
+## Standardized Error Handling
+
+All backend API errors use a consistent, structured JSON format:
+
+```json
+{
+  "error": {
+    "message": "Clear, user-friendly description of error.",
+    "type": "ErrorType"
+  }
+}
+```
+
+- `message`: A clear, user-friendly description of the error.
+- `type`: The category of error. Possible values include:
+  - `NotFound`: Resource not found (404)
+  - `BadRequest`: Invalid parameters or request (400)
+  - `ExternalAPIError`: Issues with GitHub, OpenAI, or other external APIs (502)
+  - `InternalError`: Internal server errors (500)
+  - `ValidationError`: Input validation errors (400)
+
+All endpoints return appropriate HTTP status codes and this error format for all error cases.
+
+---
+
+## Tech Stack
+- **Python 3.9+**
+- **FastAPI**
+- **PyGithub** (GitHub API integration)
+- **OpenAI** (GPT-4 summaries)
+- **Uvicorn** (ASGI server)
+
+---
+
+## Health & Status
+- The root endpoint `/` returns `{ "message": "Hello, World!" }` if the backend is running.
+
+---
+
+## License
+MIT 

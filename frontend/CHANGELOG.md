@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased]
+### Removed
+- Clearly removed unused advanced file-navigation components:
+  - JumpToDefinition, FindReferences, FileTreeSidebar, RepoTreeView, ReferencesModal, and all related logic, hooks, and UI.
 - Initialized React project using Vite.
 - Integrated TailwindCSS for styling.
 - Set up project structure with components and pages directories.
@@ -17,4 +20,5 @@
 - Added /repo/{owner}/{repo}/vibe endpoint: generates a friendly, detailed Markdown summary (VIBE.md) of the repository using GPT-4, designed for non-technical users ("vibecoders").
 - Integrated Repo Vibe feature in frontend: 'View Repo Vibe' button, modal UI, markdown rendering with react-markdown, loading and error handling, and documentation.
 - Redesigned sidebar file navigation: modern icons, smooth expand/collapse, improved padding, hover/selected states, minimalist color scheme, scrollability, and clear loading/error indicators.
-- Improved main action button visibility and contrast: redesigned 'Visualize Repo Structure', 'Export YAML Context', and 'View Repo Vibe' buttons for higher readability, accessibility, and clear interactive states. 
+- Improved main action button visibility and contrast: redesigned 'Visualize Repo Structure', 'Export YAML Context', and 'View Repo Vibe' buttons for higher readability, accessibility, and clear interactive states.
+- Implemented automatic loading of "Repo Overview" in the main content area after repository selection, with clear loading/error states. Default repo load on startup removed. 

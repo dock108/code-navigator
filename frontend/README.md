@@ -78,30 +78,18 @@ GET http://localhost:8000/repo/{owner}/{repo}/metadata
 - File content is fetched from the backend and displayed with syntax highlighting using react-syntax-highlighter.
 - Loading and error states are handled gracefully.
 
-## Jump-to-Definition UI
+## AI File Summaries (On-Demand)
 
-- When viewing a Python file, function and class names are highlighted in the code view.
-- Click a highlighted name to smoothly scroll to its definition line.
-- If definition data is unavailable, a message is shown and normal code view is used.
+- When viewing a file, click the "Generate AI Summary" button to fetch and display an AI-generated summary for that specific file.
+- The summary appears above the code viewer within the same panel.
+- Loading and error states are clearly indicated during the summary generation process.
+- This feature helps users quickly understand the purpose of individual files without leaving the context of the code.
 
-## Find References UI
+## "Show Repo Overview" Button
 
-- Click a highlighted function or class name in the code view to fetch and display all references (usages) in a modal.
-- The modal shows line numbers and code snippets for each reference, or a message if none are found.
-- Loading and error states are handled gracefully.
-
-## Repo Structure Visualization
-
-- Click the "Visualize Repo Structure" button on the landing page to open an interactive tree view of the repository structure.
-- The tree is fetched from the backend and rendered using react-d3-tree.
-- Directories and files are visually distinct; nodes can be expanded/collapsed.
-- Loading and error states are handled gracefully.
-
-## AI File Summaries
-
-- When viewing a file, an AI-generated summary is fetched from the backend and displayed above the code viewer.
-- Loading and error states are clearly indicated.
-- Summaries help users quickly understand the purpose of each file.
+- After navigating away from the initial automatic "Repo Vibe" display (e.g., by selecting a file), users can click the "📖 Show Repo Overview" button.
+- This action re-fetches and displays the main VIBE.md (the overall repository summary) in the main content area.
+- This replaces the previous modal functionality for viewing the Repo Vibe.
 
 ## YAML Context Export
 
@@ -122,3 +110,12 @@ GET http://localhost:8000/repo/{owner}/{repo}/metadata
 - Use the header input to enter any public GitHub repository in the format `owner/repo`.
 - Click the "Load" button to fetch and view the selected repository.
 - Loading and error states are clearly indicated in the header.
+
+## Automatic Repo Vibe Loading
+
+- Upon successfully loading a repository via the header input, the application now automatically fetches and displays the "Repo Vibe" (a comprehensive Markdown summary) in the main content area.
+- This provides users with an immediate, non-technical overview of the repository.
+- A loading indicator is shown while the Vibe summary is being generated.
+- If fetching or rendering the Vibe summary fails, a clear error message is displayed.
+- If a user clicks a file in the sidebar, the Code Viewer will replace the Vibe summary for that file.
+- The "View Repo Vibe (Modal)" button remains available to view the summary in a focused modal at any time.
