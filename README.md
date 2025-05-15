@@ -201,4 +201,24 @@ This project uses the [PyGithub](https://pygithub.readthedocs.io/) library to in
     ]
   }
   ```
-- **Description:** Returns a nested JSON structure suitable for visualizing the repository's file/module architecture. Handles errors for invalid repositories. 
+- **Description:** Returns a nested JSON structure suitable for visualizing the repository's file/module architecture. Handles errors for invalid repositories.
+
+### Summarize File (AI)
+
+- **Endpoint:** `/ai/summarize-file`
+- **Method:** POST
+- **Request Body:**
+  ```json
+  {
+    "owner": "dock108",
+    "repo": "code-navigator",
+    "path": "app/main.py"
+  }
+  ```
+- **Response Example:**
+  ```json
+  {
+    "summary": "The main FastAPI application entry point defining the root endpoint."
+  }
+  ```
+- **Description:** Uses GPT-4 to summarize the functionality and purpose of the specified file. Handles errors for missing files or API issues. 
