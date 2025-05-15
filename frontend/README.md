@@ -106,3 +106,9 @@ GET http://localhost:8000/repo/{owner}/{repo}/metadata
 - Click the "Export YAML Context" button to download a structured YAML summary of the repository for AI use.
 - The file is downloaded as `{repo_name}-context.yaml`.
 - Loading and error states are clearly indicated in the UI.
+
+## Dynamic Repository Selection
+
+- Use the header input to enter any public GitHub repository in the format `owner/repo`.
+- Click the "Load" button to fetch and view the selected repository.
+- Loading and error states are clearly indicated in the header.

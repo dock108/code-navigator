@@ -3,8 +3,6 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 import ReferencesModal from "./ReferencesModal";
 
-const OWNER = "dock108";
-const REPO = "code-navigator";
 const API_SUMMARY_URL = "http://localhost:8000/ai/summarize-file";
 
 function getLanguageFromPath(path) {
@@ -55,7 +53,7 @@ function getLanguageFromPath(path) {
   }
 }
 
-export default function CodeViewer({ filePath }) {
+export default function CodeViewer({ filePath, owner = "dock108", repo = "code-navigator" }) {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -79,7 +77,7 @@ export default function CodeViewer({ filePath }) {
     setDefinitions([]);
     setDefError(null);
     fetch(
-      `http://localhost:8000/repo/${OWNER}/${REPO}/file-content?path=${encodeURIComponent(
+      `http://localhost:8000/repo/${owner}/${repo}/file-content?path=${encodeURIComponent(
         filePath
       )}`
     )
@@ -98,7 +96,7 @@ export default function CodeViewer({ filePath }) {
 
     // Fetch definitions if Python file
     if (filePath.endsWith(".py")) {
-      fetch(`http://localhost:8000/repo/${OWNER}/${REPO}/definitions`, {
+      fetch(`http://localhost:8000/repo/${owner}/${repo}/definitions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ path: filePath }),
@@ -126,7 +124,7 @@ export default function CodeViewer({ filePath }) {
       fetch(API_SUMMARY_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ owner: OWNER, repo: REPO, path: filePath }),
+        body: JSON.stringify({ owner, repo, path: filePath }),
       })
         .then((res) => {
           if (!res.ok) throw new Error("Failed to fetch summary");
@@ -141,7 +139,7 @@ export default function CodeViewer({ filePath }) {
           setSummaryLoading(false);
         });
     }
-  }, [filePath]);
+  }, [filePath, owner, repo]);
 
   // Fetch references for a symbol and open modal
   const handleFindReferences = (symbol) => {
@@ -150,7 +148,7 @@ export default function CodeViewer({ filePath }) {
     setReferencesLoading(true);
     setReferencesError(null);
     setReferencesSymbol(symbol);
-    fetch(`http://localhost:8000/repo/${OWNER}/${REPO}/references`, {
+    fetch(`http://localhost:8000/repo/${owner}/${repo}/references`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ path: filePath, name: symbol }),

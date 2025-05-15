@@ -12,4 +12,5 @@
 - Implemented find-references UI: clicking a highlighted name fetches and displays references in a modal, with loading and empty states handled gracefully.
 - Implemented repo structure visualization: interactive tree view using react-d3-tree, accessible from the landing page, with clear distinction between files and directories.
 - Integrated AI file summaries: fetches and displays GPT-4-generated summaries above the code viewer, with loading and error handling.
-- Added 'Export YAML Context' button to UI: fetches and downloads YAML context from backend, with loading and error handling. 
+- Added 'Export YAML Context' button to UI: fetches and downloads YAML context from backend, with loading and error handling.
+- Redesigned header with branding, dynamic repo input, and load button. Users can now load any public GitHub repository, with clear loading and error handling. 
