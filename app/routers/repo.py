@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Response, Query
 from github.GithubException import GithubException
 from app.services.github_service import get_repo_file_structure, get_file_content, get_repo_metadata, get_python_definitions, find_python_references, get_repo_structure_visualization
+from app.services.yaml_context_service import generate_yaml_context
 
 from pydantic import BaseModel
 
@@ -88,4 +89,12 @@ def get_structure_visualization(owner: str, repo: str):
         elif e.status == 401:
             raise HTTPException(status_code=401, detail="Invalid or missing GitHub token.")
         else:
-            raise HTTPException(status_code=500, detail="GitHub API error.") 
+            raise HTTPException(status_code=500, detail="GitHub API error.")
+
+@router.get("/repo/{owner}/{repo}/yaml-context")
+async def get_yaml_context(owner: str, repo: str):
+    try:
+        yaml_str = await generate_yaml_context(owner, repo)
+        return Response(content=yaml_str, media_type="text/yaml")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"YAML context generation failed: {str(e)}") 

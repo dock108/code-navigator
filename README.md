@@ -221,4 +221,30 @@ This project uses the [PyGithub](https://pygithub.readthedocs.io/) library to in
     "summary": "The main FastAPI application entry point defining the root endpoint."
   }
   ```
-- **Description:** Uses GPT-4 to summarize the functionality and purpose of the specified file. Handles errors for missing files or API issues. 
+- **Description:** Uses GPT-4 to summarize the functionality and purpose of the specified file. Handles errors for missing files or API issues.
+
+### YAML Context Export
+
+- **Endpoint:** `/repo/{owner}/{repo}/yaml-context`
+- **Method:** GET
+- **Response Content-Type:** `text/yaml`
+- **Response Example:**
+  ```yaml
+  repo_name: code-navigator
+  language: Python
+  modules:
+    - path: app/
+      description: Main application components.
+      important_files:
+        - file: main.py
+          purpose: Application entry-point.
+  entry_points:
+    - app/main.py
+  key_concepts:
+    - FastAPI
+    - REST API
+    - GitHub integration
+  high_level_overview: |
+    This repository contains a FastAPI backend and React frontend designed to simplify codebase navigation.
+  ```
+- **Description:** Returns a structured YAML summary of the repository layout, modules, entry points, and metadata for AI ingestion. Handles errors gracefully. 

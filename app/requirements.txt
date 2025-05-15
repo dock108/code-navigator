@@ -1,4 +1,5 @@
 fastapi
 uvicorn
 PyGithub
-openai 
+openai
+PyYAML 
