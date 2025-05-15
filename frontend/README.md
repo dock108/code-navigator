@@ -81,3 +81,9 @@ GET http://localhost:8000/repo/{owner}/{repo}/metadata
 - When viewing a Python file, function and class names are highlighted in the code view.
 - Click a highlighted name to smoothly scroll to its definition line.
 - If definition data is unavailable, a message is shown and normal code view is used.
+
+## Find References UI
+
+- Click a highlighted function or class name in the code view to fetch and display all references (usages) in a modal.
+- The modal shows line numbers and code snippets for each reference, or a message if none are found.
+- Loading and error states are handled gracefully.

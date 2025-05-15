@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
+import ReferencesModal from "./ReferencesModal";
 
 const OWNER = "dock108";
 const REPO = "code-navigator";
@@ -60,6 +61,11 @@ export default function CodeViewer({ filePath }) {
   const [definitions, setDefinitions] = useState([]);
   const [defError, setDefError] = useState(null);
   const codeContainerRef = useRef(null);
+  const [referencesModalOpen, setReferencesModalOpen] = useState(false);
+  const [references, setReferences] = useState([]);
+  const [referencesLoading, setReferencesLoading] = useState(false);
+  const [referencesError, setReferencesError] = useState(null);
+  const [referencesSymbol, setReferencesSymbol] = useState("");
 
   useEffect(() => {
     if (!filePath) return;
@@ -108,6 +114,32 @@ export default function CodeViewer({ filePath }) {
     }
   }, [filePath]);
 
+  // Fetch references for a symbol and open modal
+  const handleFindReferences = (symbol) => {
+    setReferencesModalOpen(true);
+    setReferences([]);
+    setReferencesLoading(true);
+    setReferencesError(null);
+    setReferencesSymbol(symbol);
+    fetch(`http://localhost:8000/repo/${OWNER}/${REPO}/references`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path: filePath, name: symbol }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Could not fetch references");
+        return res.json();
+      })
+      .then((json) => {
+        setReferences(json.references || []);
+        setReferencesLoading(false);
+      })
+      .catch((err) => {
+        setReferencesError(err.message);
+        setReferencesLoading(false);
+      });
+  };
+
   if (!filePath) {
     return <div className="text-gray-400">Select a file to view its content.</div>;
   }
@@ -145,10 +177,8 @@ export default function CodeViewer({ filePath }) {
   function renderLine(line, idx) {
     const lineNum = idx + 1;
     let rendered = line;
-    // Highlight definition name at its definition line
     if (defLineMap[lineNum]) {
       const def = defLineMap[lineNum];
-      // Only highlight the first occurrence of the name in the line
       const nameIdx = line.indexOf(def.name);
       if (nameIdx !== -1) {
         rendered = (
@@ -156,8 +186,8 @@ export default function CodeViewer({ filePath }) {
             {line.slice(0, nameIdx)}
             <span
               className="text-blue-600 underline cursor-pointer font-semibold bg-blue-50 px-1 rounded"
-              onClick={() => scrollToLine(lineNum)}
-              title={`Jump to definition of ${def.name}`}
+              onClick={() => handleFindReferences(def.name)}
+              title={`Find references for ${def.name}`}
             >
               {def.name}
             </span>
@@ -166,7 +196,6 @@ export default function CodeViewer({ filePath }) {
         );
       }
     } else {
-      // For all other lines, highlight references to definition names
       for (const name of defNames) {
         const nameIdx = line.indexOf(name);
         if (nameIdx !== -1) {
@@ -175,10 +204,8 @@ export default function CodeViewer({ filePath }) {
               {line.slice(0, nameIdx)}
               <span
                 className="text-blue-500 underline cursor-pointer hover:bg-blue-100 px-1 rounded"
-                onClick={() => scrollToLine(
-                  definitions.find((d) => d.name === name)?.line
-                )}
-                title={`Jump to definition of ${name}`}
+                onClick={() => handleFindReferences(name)}
+                title={`Find references for ${name}`}
               >
                 {name}
               </span>
@@ -206,11 +233,19 @@ export default function CodeViewer({ filePath }) {
 
   return (
     <div className="w-full h-full overflow-auto bg-white rounded shadow p-4" ref={codeContainerRef}>
+      <ReferencesModal
+        open={referencesModalOpen}
+        onClose={() => setReferencesModalOpen(false)}
+        references={references}
+        loading={referencesLoading}
+        error={referencesError}
+        symbol={referencesSymbol}
+      />
       {defError && (
         <div className="text-red-400 mb-2">Jump-to-definition unavailable: {defError}</div>
       )}
       {definitions.length > 0 && (
-        <div className="mb-2 text-xs text-blue-700">Click a highlighted name to jump to its definition.</div>
+        <div className="mb-2 text-xs text-blue-700">Click a highlighted name to jump to its definition or find references.</div>
       )}
       {content && filePath.endsWith(".py") && definitions.length > 0 ? (
         <div>
