@@ -1,5 +1,4 @@
 module.exports = {
-  purge: [],
   darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {},
@@ -7,7 +6,9 @@ module.exports = {
   variants: {
     extend: {},
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
   content: [
     "./index.html",
     "./src/**/*.{js,jsx,ts,tsx}",

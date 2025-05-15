@@ -15,4 +15,6 @@
 - Added 'Export YAML Context' button to UI: fetches and downloads YAML context from backend, with loading and error handling.
 - Redesigned header with branding, dynamic repo input, and load button. Users can now load any public GitHub repository, with clear loading and error handling.
 - Added /repo/{owner}/{repo}/vibe endpoint: generates a friendly, detailed Markdown summary (VIBE.md) of the repository using GPT-4, designed for non-technical users ("vibecoders").
-- Integrated Repo Vibe feature in frontend: 'View Repo Vibe' button, modal UI, markdown rendering with react-markdown, loading and error handling, and documentation. 
+- Integrated Repo Vibe feature in frontend: 'View Repo Vibe' button, modal UI, markdown rendering with react-markdown, loading and error handling, and documentation.
+- Redesigned sidebar file navigation: modern icons, smooth expand/collapse, improved padding, hover/selected states, minimalist color scheme, scrollability, and clear loading/error indicators.
+- Improved main action button visibility and contrast: redesigned 'Visualize Repo Structure', 'Export YAML Context', and 'View Repo Vibe' buttons for higher readability, accessibility, and clear interactive states. 

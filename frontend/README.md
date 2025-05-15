@@ -65,10 +65,12 @@ GET http://localhost:8000/repo/{owner}/{repo}/metadata
 
 ## Sidebar File Navigation
 
-- The sidebar on the left displays the repository file structure as an expandable/collapsible tree.
-- Directories can be expanded/collapsed by clicking on them.
-- Files are shown with a file icon; clicking a file logs its path to the console.
-- The sidebar fetches data from the backend endpoint `/repo/{owner}/{repo}/files`.
+- The sidebar now features a modern, minimalist design with clear icons for files and directories.
+- Expand/collapse for directories is smooth and animated, with clear chevron indicators.
+- Visual separation is improved with padding, hover effects, and a highlighted selected state.
+- The color scheme matches the app's branding and is easy on the eyes.
+- The sidebar remains scrollable for large file structures.
+- Loading and error states are clearly indicated with friendly messages and spinners.
 
 ## File Content Viewing & Syntax Highlighting
 

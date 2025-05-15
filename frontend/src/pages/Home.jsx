@@ -126,21 +126,23 @@ export default function Home() {
           <p className="text-lg text-gray-600 mb-8">Easily navigate GitHub repositories.</p>
           <div className="flex items-center space-x-4 mb-6">
             <button
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+              className="px-5 py-2 bg-blue-700 text-white font-semibold rounded-lg shadow-md border border-blue-800 hover:bg-blue-800 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-150 disabled:bg-gray-200 disabled:text-gray-400 disabled:border-gray-300 disabled:shadow-none disabled:cursor-not-allowed"
               onClick={() => setShowTree(true)}
+              disabled={false}
             >
               Visualize Repo Structure
             </button>
             <button
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+              className="px-5 py-2 bg-green-700 text-white font-semibold rounded-lg shadow-md border border-green-800 hover:bg-green-800 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-150 disabled:bg-gray-200 disabled:text-gray-400 disabled:border-gray-300 disabled:shadow-none disabled:cursor-not-allowed"
               onClick={handleExportYaml}
               disabled={yamlLoading}
             >
               {yamlLoading ? "Exporting YAML..." : "Export YAML Context"}
             </button>
             <button
-              className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition flex items-center"
+              className="px-5 py-2 bg-purple-700 text-white font-semibold rounded-lg shadow-md border border-purple-800 hover:bg-purple-800 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-150 flex items-center disabled:bg-gray-200 disabled:text-gray-400 disabled:border-gray-300 disabled:shadow-none disabled:cursor-not-allowed"
               onClick={handleOpenVibe}
+              disabled={false}
             >
               <span className="mr-2">📖</span> View Repo Vibe
             </button>
@@ -177,12 +179,12 @@ export default function Home() {
             <CodeViewer filePath={selectedFile} owner={owner} repo={repo} />
           </div>
           {vibeOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-              <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6 relative flex flex-col">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-xl font-bold flex items-center"><span className="mr-2">📝</span>Repo Vibe</span>
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30 backdrop-blur-sm">
+              <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-8 relative flex flex-col border border-gray-200">
+                <div className="flex items-center justify-between mb-6">
+                  <span className="text-2xl font-bold flex items-center"><span className="mr-2">📝</span>Repo Vibe</span>
                   <button
-                    className="text-gray-500 hover:text-gray-800 text-lg font-bold px-2 py-1 rounded"
+                    className="text-gray-400 hover:text-gray-700 text-2xl font-bold bg-white bg-opacity-80 rounded-full w-9 h-9 flex items-center justify-center shadow focus:outline-none focus:ring-2 focus:ring-blue-400"
                     onClick={handleCloseVibe}
                     aria-label="Close"
                   >
@@ -209,7 +211,7 @@ export default function Home() {
                   ))}
                 </div>
                 <button
-                  className="mt-6 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-medium self-end"
+                  className="mt-8 px-5 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-medium self-end shadow"
                   onClick={handleCloseVibe}
                 >
                   Close
