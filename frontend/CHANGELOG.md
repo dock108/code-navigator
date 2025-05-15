@@ -13,4 +13,6 @@
 - Implemented repo structure visualization: interactive tree view using react-d3-tree, accessible from the landing page, with clear distinction between files and directories.
 - Integrated AI file summaries: fetches and displays GPT-4-generated summaries above the code viewer, with loading and error handling.
 - Added 'Export YAML Context' button to UI: fetches and downloads YAML context from backend, with loading and error handling.
-- Redesigned header with branding, dynamic repo input, and load button. Users can now load any public GitHub repository, with clear loading and error handling. 
+- Redesigned header with branding, dynamic repo input, and load button. Users can now load any public GitHub repository, with clear loading and error handling.
+- Added /repo/{owner}/{repo}/vibe endpoint: generates a friendly, detailed Markdown summary (VIBE.md) of the repository using GPT-4, designed for non-technical users ("vibecoders").
+- Integrated Repo Vibe feature in frontend: 'View Repo Vibe' button, modal UI, markdown rendering with react-markdown, loading and error handling, and documentation. 

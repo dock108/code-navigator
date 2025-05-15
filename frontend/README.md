@@ -107,6 +107,14 @@ GET http://localhost:8000/repo/{owner}/{repo}/metadata
 - The file is downloaded as `{repo_name}-context.yaml`.
 - Loading and error states are clearly indicated in the UI.
 
+## Repo Vibe (Full Repo Markdown Summary)
+
+- Click the "📖 View Repo Vibe" button to open a modal displaying a comprehensive, AI-generated Markdown summary of the repository.
+- The summary is fetched from the backend `/repo/{owner}/{repo}/vibe` endpoint and rendered using react-markdown.
+- Loading and error states are clearly indicated in the modal.
+- The modal is scrollable and can be closed at any time.
+- The summary is designed for non-technical users, providing a high-level overview, file structure, and the general "vibe" of the repo.
+
 ## Dynamic Repository Selection
 
 - Use the header input to enter any public GitHub repository in the format `owner/repo`.

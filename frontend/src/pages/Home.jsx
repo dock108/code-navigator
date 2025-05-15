@@ -3,6 +3,7 @@ import Sidebar from "../components/Sidebar";
 import CodeViewer from "../components/CodeViewer";
 import RepoTreeView from "../components/RepoTreeView";
 import Header from "../components/Header";
+import ReactMarkdown from "react-markdown";
 
 const OWNER = "dock108";
 const REPO = "code-navigator";
@@ -20,6 +21,10 @@ export default function Home() {
   const [repo, setRepo] = useState(REPO);
   const [headerLoading, setHeaderLoading] = useState(false);
   const [headerError, setHeaderError] = useState(null);
+  const [vibeOpen, setVibeOpen] = useState(false);
+  const [vibeLoading, setVibeLoading] = useState(false);
+  const [vibeError, setVibeError] = useState(null);
+  const [vibeMarkdown, setVibeMarkdown] = useState("");
 
   useEffect(() => {
     setLoading(true);
@@ -87,6 +92,30 @@ export default function Home() {
     }
   };
 
+  const handleOpenVibe = async () => {
+    setVibeOpen(true);
+    setVibeLoading(true);
+    setVibeError(null);
+    setVibeMarkdown("");
+    try {
+      const res = await fetch(`http://localhost:8000/repo/${owner}/${repo}/vibe`);
+      if (!res.ok) throw new Error("Failed to fetch Repo Vibe summary");
+      const md = await res.text();
+      setVibeMarkdown(md);
+      setVibeLoading(false);
+    } catch (err) {
+      setVibeError(err.message);
+      setVibeLoading(false);
+    }
+  };
+
+  const handleCloseVibe = () => {
+    setVibeOpen(false);
+    setVibeMarkdown("");
+    setVibeError(null);
+    setVibeLoading(false);
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Header onRepoLoad={handleRepoLoad} loading={headerLoading} error={headerError} />
@@ -108,6 +137,12 @@ export default function Home() {
               disabled={yamlLoading}
             >
               {yamlLoading ? "Exporting YAML..." : "Export YAML Context"}
+            </button>
+            <button
+              className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition flex items-center"
+              onClick={handleOpenVibe}
+            >
+              <span className="mr-2">📖</span> View Repo Vibe
             </button>
           </div>
           {yamlError && <div className="text-red-500 mb-4">{yamlError}</div>}
@@ -141,6 +176,47 @@ export default function Home() {
           <div className="w-full max-w-3xl flex-1">
             <CodeViewer filePath={selectedFile} owner={owner} repo={repo} />
           </div>
+          {vibeOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+              <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6 relative flex flex-col">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-xl font-bold flex items-center"><span className="mr-2">📝</span>Repo Vibe</span>
+                  <button
+                    className="text-gray-500 hover:text-gray-800 text-lg font-bold px-2 py-1 rounded"
+                    onClick={handleCloseVibe}
+                    aria-label="Close"
+                  >
+                    ×
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto max-h-[60vh]">
+                  {vibeLoading && <div className="text-gray-400 py-8 text-center">Loading Repo Vibe…</div>}
+                  {vibeError && <div className="text-red-500 py-8 text-center">{vibeError}</div>}
+                  {!vibeLoading && !vibeError && typeof vibeMarkdown === "string" && vibeMarkdown.trim() !== "" ? (
+                    (() => {
+                      try {
+                        return (
+                          <div className="prose max-w-none">
+                            <ReactMarkdown>{vibeMarkdown}</ReactMarkdown>
+                          </div>
+                        );
+                      } catch (err) {
+                        return <div className="text-red-500">Error rendering markdown.</div>;
+                      }
+                    })()
+                  ) : (!vibeLoading && !vibeError && (
+                    <div className="text-gray-400 py-8 text-center">No summary available.</div>
+                  ))}
+                </div>
+                <button
+                  className="mt-6 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-medium self-end"
+                  onClick={handleCloseVibe}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </div>
